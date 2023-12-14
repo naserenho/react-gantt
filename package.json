@@ -1,6 +1,6 @@
 {
   "name": "rc-gantt-nas",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "homepage": "https://ahwgs.github.io/react-gantt/#/",
   "repository": {
     "type": "git",
@@ -19,12 +19,6 @@
     "release": "bumpp package.json --commit --push --tag",
     "start": "cross-env NODE_ENV=development react-scripts start --watch",
     "start:ts": "react-scripts start"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   },
   "lint-staged": {
     "*.{js,json,md,tsx,ts}": [
