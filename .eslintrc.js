@@ -1,5 +1,5 @@
 module.exports = {
-  extends: '@osdoc-dev/eslint-config-preset-react',
+  // extends: '@osdoc-dev/eslint-config-preset-react',
   env: {
     node: true,
     jest: true,

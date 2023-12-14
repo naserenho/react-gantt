@@ -5,4 +5,6 @@ node_modules
 dist
 yarn.lock
 .umi
+.umi-production
 .idea
+.dumi

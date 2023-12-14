@@ -1,6 +1,6 @@
-import React, { useContext, useCallback, useState, useRef } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { observer } from 'mobx-react-lite'
-import { usePersistFn } from 'ahooks'
+import React, { useCallback, useContext, useRef, useState } from 'react'
 import Context from '../../context'
 import { Gantt } from '../../types'
 import DragResize from '../drag-resize'
@@ -68,7 +68,7 @@ const InvalidTaskBar: React.FC<TaskBarProps> = ({ data }) => {
     },
     [store]
   )
-  const reachEdge = usePersistFn((position: 'left' | 'right') => position === 'left' && store.translateX <= 0)
+  const reachEdge = useMemoizedFn((position: 'left' | 'right') => position === 'left' && store.translateX <= 0)
 
   if (disabled) return null
 
@@ -77,7 +77,7 @@ const InvalidTaskBar: React.FC<TaskBarProps> = ({ data }) => {
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onResize={handleResize}
+      onResizeStart={handleResize}
       onResizeEnd={handleLeftResizeEnd}
       defaultSize={{
         x: translateX,

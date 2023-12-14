@@ -1,17 +1,18 @@
-import React, { useState, useRef, useMemo } from 'react';
-import { createPortal } from 'react-dom';
-import { usePersistFn } from 'ahooks';
-import { observer } from 'mobx-react-lite';
-import AutoScroller from './AutoScroller';
+import { useMemoizedFn } from "ahooks";
+import { observer } from "mobx-react-lite";
+import React, { useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import AutoScroller from "./AutoScroller";
 
 interface Size {}
 interface DragResizeProps extends React.HTMLProps<HTMLDivElement> {
-  onResize: ({ width, x }: { width: number; x: number }) => void;
-  /* 拖拽前的size */
+  // onResize: (event: SyntheticEvent<HTMLDivElement, Event>) => void
+  onResizeStart: ({ width, x }: { width: number; x: number }) => void;
+  /* Before dragging size */
   onResizeEnd?: ({ width, x }: { width: number; x: number }) => void;
   onBeforeResize?: () => void;
   minWidth?: number;
-  type: 'left' | 'right' | 'move';
+  type: "left" | "right" | "move";
   grid?: number;
   scroller?: HTMLElement;
   defaultSize: {
@@ -20,16 +21,16 @@ interface DragResizeProps extends React.HTMLProps<HTMLDivElement> {
   };
   autoScroll?: boolean;
   onAutoScroll?: (delta: number) => void;
-  reachEdge?: (position: 'left' | 'right') => boolean;
-  /* 点击就算开始 */
+  reachEdge?: (position: "left" | "right") => boolean;
+  /* Click to start */
   clickStart?: boolean;
-  disabled?: boolean
+  disabled?: boolean;
 }
 const snap = (n: number, size: number): number => Math.round(n / size) * size;
 const DragResize: React.FC<DragResizeProps> = ({
   type,
   onBeforeResize,
-  onResize,
+  onResizeStart,
   onResizeEnd,
   minWidth = 0,
   grid,
@@ -44,7 +45,7 @@ const DragResize: React.FC<DragResizeProps> = ({
   ...otherProps
 }) => {
   const [resizing, setResizing] = useState(false);
-  const handleAutoScroll = usePersistFn((delta: number) => {
+  const handleAutoScroll = useMemoizedFn((delta: number) => {
     updateSize();
     onAutoScroll(delta);
   });
@@ -62,14 +63,14 @@ const DragResize: React.FC<DragResizeProps> = ({
   const moveRef = useRef({
     clientX: 0,
   });
-  const updateSize = usePersistFn(() => {
-    if (disabled) return
+  const updateSize = useMemoizedFn(() => {
+    if (disabled) return;
     const distance =
       moveRef.current.clientX -
       positionRef.current.clientX +
       autoScroll.autoScrollPos;
     switch (type) {
-      case 'left': {
+      case "left": {
         let width = positionRef.current.width - distance;
         if (minWidth !== undefined) {
           width = Math.max(width, minWidth);
@@ -79,11 +80,11 @@ const DragResize: React.FC<DragResizeProps> = ({
         }
         const pos = width - positionRef.current.width;
         const x = positionRef.current.x - pos;
-        onResize({ width, x });
+        onResizeStart({ width, x });
         break;
       }
-      // 向右，x不变，只变宽度
-      case 'right': {
+      // To the right, x remains unchanged, only the width changes
+      case "right": {
         let width = positionRef.current.width + distance;
         if (minWidth !== undefined) {
           width = Math.max(width, minWidth);
@@ -92,23 +93,23 @@ const DragResize: React.FC<DragResizeProps> = ({
           width = snap(width, grid);
         }
         const { x } = positionRef.current;
-        onResize({ width, x });
+        onResizeStart({ width, x });
         break;
       }
-      case 'move': {
+      case "move": {
         const { width } = positionRef.current;
         let rightDistance = distance;
         if (grid) {
           rightDistance = snap(distance, grid);
         }
         const x = positionRef.current.x + rightDistance;
-        onResize({ width, x });
+        onResizeStart({ width, x });
         break;
       }
     }
   });
-  const handleMouseMove = usePersistFn((event: MouseEvent) => {
-    if (disabled) return
+  const handleMouseMove = useMemoizedFn((event: MouseEvent) => {
+    if (disabled) return;
     if (!resizing) {
       setResizing(true);
       if (!clickStart) {
@@ -119,11 +120,11 @@ const DragResize: React.FC<DragResizeProps> = ({
     updateSize();
   });
 
-  const handleMouseUp = usePersistFn(() => {
-    if (disabled) return
+  const handleMouseUp = useMemoizedFn(() => {
+    if (disabled) return;
     autoScroll.stop();
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('mouseup', handleMouseUp);
+    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mouseup", handleMouseUp);
     if (resizing) {
       setResizing(false);
       onResizeEnd &&
@@ -133,9 +134,9 @@ const DragResize: React.FC<DragResizeProps> = ({
         });
     }
   });
-  const handleMouseDown = usePersistFn(
+  const handleMouseDown = useMemoizedFn(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (disabled) return
+      if (disabled) return;
       event.stopPropagation();
       if (enableAutoScroll && scroller) {
         autoScroll.start();
@@ -147,8 +148,8 @@ const DragResize: React.FC<DragResizeProps> = ({
       positionRef.current.clientX = event.clientX;
       positionRef.current.x = defaultX;
       positionRef.current.width = defaultWidth;
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
     }
   );
 
@@ -158,13 +159,13 @@ const DragResize: React.FC<DragResizeProps> = ({
         createPortal(
           <div
             style={{
-              position: 'fixed',
+              position: "fixed",
               top: 0,
               left: 0,
               bottom: 0,
               right: 0,
               zIndex: 9999,
-              cursor: disabled ? 'not-allowed':'col-resize',
+              cursor: disabled ? "not-allowed" : "col-resize",
             }}
           />,
           document.body

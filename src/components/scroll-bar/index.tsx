@@ -1,4 +1,4 @@
-import { usePersistFn } from 'ahooks'
+import { useMemoizedFn } from 'ahooks'
 import { observer } from 'mobx-react-lite'
 import React, { memo, useCallback, useContext, useRef, useState } from 'react'
 import Context from '../../context'
@@ -15,7 +15,7 @@ const ScrollBar: React.FC = () => {
     left: 0,
     translateX: 0,
   })
-  const handleMouseMove = usePersistFn((event: MouseEvent) => {
+  const handleMouseMove = useMemoizedFn((event: MouseEvent) => {
     const distance = event.clientX - positionRef.current.left
     // TODO 调整倍率
     store.setTranslateX(distance * (store.viewWidth / store.scrollBarWidth) + positionRef.current.translateX)

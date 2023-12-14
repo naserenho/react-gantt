@@ -1,9 +1,8 @@
-import React, { useCallback, useContext } from 'react'
-import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import DragResize from '../drag-resize'
+import { observer } from 'mobx-react-lite'
+import React, { useCallback, useContext } from 'react'
 import Context from '../../context'
-
+import DragResize from '../drag-resize'
 import './index.less'
 
 const TimeAxis: React.FC = () => {
@@ -33,7 +32,7 @@ const TimeAxis: React.FC = () => {
 
   return (
     <DragResize
-      onResize={handleResize}
+      onResizeStart={handleResize}
       onResizeEnd={handleLeftResizeEnd}
       defaultSize={{
         x: -store.translateX,

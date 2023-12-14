@@ -15,7 +15,7 @@ interface Point {
   y: number
 }
 /**
- * 获取关键点
+ * Get key points
  *
  * @param from
  * @param to
@@ -24,7 +24,7 @@ function getPoints(from: Point, to: Point, type: Gantt.DependenceType) {
   const { x: fromX, y: fromY } = from
   const { x: toX, y: toY } = to
   const sameSide = type === 'finish_finish' || type === 'start_start'
-  // 同向，只需要两个关键点
+  // In the same direction, only two key points are needed
   if (sameSide) {
     if (type === 'start_start') {
       return [
@@ -37,7 +37,7 @@ function getPoints(from: Point, to: Point, type: Gantt.DependenceType) {
       { x: Math.max(fromX + spaceX, toX + spaceX), y: toY },
     ]
   }
-  // 不同向，需要四个关键点
+  // Different directions require four key points
 
   return [
     { x: type === 'finish_start' ? fromX + spaceX : fromX - spaceX, y: fromY },
